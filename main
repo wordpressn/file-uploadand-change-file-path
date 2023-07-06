@@ -1,0 +1,19 @@
+if (!function_exists('wfu_before_file_upload_handler')) {
+    function wfu_before_file_upload_handler($file_path, $file_unique_id) {
+      //get the current user
+      $user = wp_get_current_user();
+      if ( $user->ID != 0 ) {
+        //extract filename from $file_path
+        $filename = wfu_basename($file_path);
+        //get upload dir structure
+        $upload_dir = wp_upload_dir();
+        //construct new upload dir from upload base dir and the username of the current user
+        $new_file_dir = $upload_dir['basedir'].'/'.$user->user_login;
+        //create the new file dir, if it is does not exist
+        if ( !is_dir($new_file_dir) ) mkdir($new_file_dir, 0777, true);
+        //return the new file path
+        return $new_file_dir.'/'.$filename;
+      }
+    }
+    add_filter('wfu_before_file_upload', 'wfu_before_file_upload_handler', 10, 2);
+}
